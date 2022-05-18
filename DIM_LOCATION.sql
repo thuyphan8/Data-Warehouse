@@ -1,7 +1,7 @@
 --Create table DIM_LOCATION
 CREATE OR REPLACE TABLE PUBLIC.DIM_LOCATION (
     DimLocationID INT IDENTITY(1,1) CONSTRAINT PK_DimLocationID PRIMARY KEY NOT NULL
-    , LocationID INT IDENTITY(1,1)  NOT NULL
+    , SourceLocationID VARCHAR(255) NOT NULL
     , PostalCode VARCHAR(255) NOT NULL
     , Address VARCHAR(255) NOT NULL
     , City VARCHAR(255) NOT NULL
@@ -12,7 +12,7 @@ CREATE OR REPLACE TABLE PUBLIC.DIM_LOCATION (
 --Load unknown location
 INSERT INTO PUBLIC.DIM_LOCATION (
     DimLocationID
-    , LocationID
+    , SourceLocationID
     , PostalCode
     , Address
     , City
@@ -22,7 +22,7 @@ INSERT INTO PUBLIC.DIM_LOCATION (
 )
 VALUES (
     -1
-    ,-1
+    , 'NULL'
     , 'NULL'
     , 'NULL'
     , 'NULL'
@@ -32,14 +32,16 @@ VALUES (
 )
 --Load location
 INSERT INTO PUBLIC.DIM_LOCATION (
-     PostalCode
+    SourceLocationID
+    , PostalCode
     , Address
     , City
     , State
     , Region
     , Country
 )
-SELECT PostalCode
+SELECT cast(StoreID as varchar) as SourceLocationID
+    , PostalCode
     , Address
     , City
     , STATEPROVINCE 
@@ -59,7 +61,8 @@ SELECT PostalCode
     , Country
 from PUBLIC.STAGE_STORE
 UNION ALL
-SELECT PostalCode
+SELECT ResellerID as SourceLocationID
+    , PostalCode
     , Address
     , City
     , STATEPROVINCE 
@@ -79,7 +82,8 @@ SELECT PostalCode
     , Country
 from PUBLIC.STAGE_RESELLER
 UNION ALL
-SELECT PostalCode
+SELECT CustomerID as SourceLocationID
+    , PostalCode
     , Address
     , City
     , STATEPROVINCE 
