@@ -12,7 +12,7 @@ CREATE OR REPLACE TABLE PUBLIC.DIM_PRODUCT (
     , ProductCost FLOAT NOT NULL
     , ProductRetailProfit FLOAT NOT NULL
     , ProductWholesaleUnitProfit FLOAT NOT NULL
-    , ProductProfitMarginUnitPercent INT NOT NULL
+    , ProductProfitMarginUnitPercent FLOAT NOT NULL
 ); 
 --Load unknown product
 INSERT INTO PUBLIC.DIM_PRODUCT (
@@ -70,12 +70,10 @@ SELECT DISTINCT
     , Price 
     , WholesalePrice 
     , Cost 
-    , (Price * B.SalesQuantity) - (B.SalesQuantity * Cost)
-    , (WholesalePrice * B.SalesQuantity) - (B.SalesQuantity * Cost)
+    , Price - Cost
+    , WholesalePrice - Cost
     , (Price - Cost)/Price * 100
 FROM STAGE_PRODUCT A
-LEFT JOIN STAGE_SALESDETAIL B
-ON A.ProductID = B.ProductID
 LEFT JOIN STAGE_PRODUCTTYPE C
 ON A.ProductTypeID = C.ProductTypeID
 JOIN STAGE_PRODUCTCATEGORY D
