@@ -28,8 +28,8 @@ INSERT INTO PUBLIC.DIM_STORE (
     , StoreNumber
     , StoreManager
 )
-SELECT StoreID
-    , B.DimLocationID 
+SELECT B.DimLocationID 
+    , StoreID
     , StoreNumber
     , StoreManager
 FROM STAGE_STORE A
