@@ -15,39 +15,6 @@ CREATE OR REPLACE TABLE PUBLIC.FACT_SALESACTUAL (
     , SaleExtendedCost FLOAT NOT NULL
     , SaleTotalProfit FLOAT NOT NULL
 ); 
---Load unknown SaleActual
-INSERT INTO PUBLIC.FACT_SALESACTUAL (
-    DimProductID
-    , DimStoreID
-    , DimResellerID
-    , DimCustomerID
-    , DimChannelID
-    , DimSaleDateID
-    , DimLocationID 
-    , SalesHeaderID
-    , SalesDetailID
-    , SaleAmount
-    , SaleQuantity
-    , SaleUnitPrice
-    , SaleExtendedCost
-    , SaleTotalProfit
-)
-VALUES (
-    -1
-    ,-1
-    , -1
-    , -1
-    , -1
-    , -1
-    , -1
-    , -1
-    , -1
-    , -1
-    , -1
-    , -1
-    , -1
-    , -1
-)
 --Load SaleActual data
 INSERT INTO PUBLIC.FACT_SALESACTUAL (
     DimProductID
@@ -77,12 +44,14 @@ SELECT
     , COALESCE(B.SALESDETAILID, -1)
     , B.SALESAMOUNT
     , B.SALESQUANTITY
-    , CASE WHEN cast(B.SALESAMOUNT /  B.SALESQUANTITY as varchar) =  cast(C.ProductRetailPrice as varchar) THEN C.ProductRetailPrice 
-           WHEN cast(B.SALESAMOUNT /  B.SALESQUANTITY as varchar) =  cast(C.ProductWholesalePrice as varchar) THEN C.ProductWholesalePrice end
+    , B.SALESAMOUNT /  B.SALESQUANTITY 
     , B.SALESQUANTITY * C.ProductCost
-    , B.SALESAMOUNT - (B.SALESQUANTITY * C.ProductCost)
+    , CASE WHEN cast(B.SALESAMOUNT /  B.SALESQUANTITY as varchar) =  cast(C.ProductRetailPrice as varchar) 
+           THEN (B.SALESQUANTITY * C.ProductRetailPrice) - (B.SALESQUANTITY * C.ProductCost)
+           WHEN cast(B.SALESAMOUNT /  B.SALESQUANTITY as varchar) =  cast(C.ProductWholesalePrice as varchar) 
+           THEN (B.SALESQUANTITY * C.ProductWholesalePrice) - (B.SALESQUANTITY * C.ProductCost) END
 FROM STAGE_SalesHeaderNew A
-JOIN STAGE_SalesDetail B ON A.SALESHEADERID = B.SALESHEADERID
+LEFT JOIN STAGE_SalesDetail B ON A.SALESHEADERID = B.SALESHEADERID
 LEFT JOIN PUBLIC.DIM_PRODUCT C ON B.PRODUCTID = C.PRODUCTID
 LEFT JOIN PUBLIC.DIM_STORE D ON A.STOREID = D.STOREID
 LEFT JOIN PUBLIC.DIM_RESELLER E ON A.RESELLERID = E.RESELLERID
