@@ -4,17 +4,7 @@ CREATE OR REPLACE TABLE PUBLIC.FACT_ProductSalesTarget (
     , DimTargetDateID number(9) CONSTRAINT FK_DimTargetDateIDDDate FOREIGN KEY REFERENCES PUBLIC.Dim_Date (DATE_PKEY) NOT NULL
     , ProductTargetSalesQuantity INT NOT NULL
 ); 
---Load unknown ProductSalesTarget
-INSERT INTO PUBLIC.FACT_ProductSalesTarget (
-    DimProductID
-    , DimTargetDateID
-    , ProductTargetSalesQuantity
-)
-VALUES (
-    -1
-    ,-1
-    , -1
-)
+
 --Load ProductSalesTarget data
 INSERT INTO PUBLIC.FACT_ProductSalesTarget (
     DimProductID
