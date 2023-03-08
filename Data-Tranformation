@@ -1,0 +1,75 @@
+# import necessary libraries
+import pandas as pd
+import os
+import glob
+import numpy as np
+
+
+# use glob to get all the csv files
+# in the folder
+path = "/Users/Thuy/Downloads/Dataset/"
+output = "/Users/Thuy/Downloads/"
+csv_files = glob.glob(os.path.join(path, "*.csv"))
+
+df = pd.read_csv("/Users/Thuy/Downloads/Region by State.csv")
+
+new_df = df.groupby('Region')['State'].apply(list)
+
+print(new_df)
+
+df = "/Users/Thuy/Downloads/Dataset/Channel.csv"
+channel_df = pd.read_csv("/Users/Thuy/Downloads/Dataset/Product.csv")
+print(channel_df['CustomerID'].isnull().values.any())
+
+sql = []
+var = []
+double_lst = ['Weight','Price', 'Cost','WholesalePrice','SalesAmount']
+int_lst = ['StoreNumber', 'SalesQuantity']
+
+#print(csv_files[0])
+f = csv_files[0]
+df = pd.read_csv(f)
+col_na = list(df.columns)
+
+for index, val in enumerate(col_na):
+    if 'ID' in val and 'ResellerID' not in val and 'CustomerID' not in val:
+        if index == 0: 
+            var.append(val + ' INT, PRIMARY KEY (' + val +')')
+        else:
+            var.append(val + ' INT NOT NULL')
+    elif val in int_lst:
+        var.append(val + ' INT NOT NULL')
+    elif val in double_lst:
+        var.append(val + ' DOUBLE NOT NULL')
+    else:
+        var.append(val + ' VARCHAR(255)')
+#print(sql_stmt)
+a = f.split("/")[-1]
+b = a.split('.')[0]
+sql_stmt = 'CREATE TABLE STAGE_' + b + ' ('
+for i in var:
+    
+    sql_stmt = sql_stmt + ("{}, ".format(i))
+#print(sql_stmt)
+
+sql_stmt = sql_stmt[:-2]
+sql_stmt += ")"
+print(sql_stmt)
+#print(sql)       
+
+
+for f in csv_files:
+    a = f.split("/")[-1]
+    b = a.split('.')[0]
+    sql = 'DROP TABLE STAGE_' + b + ';'
+    print(sql)
+
+#check null in df
+file_na = []
+for f in csv_files:
+      
+    # read the csv file
+    df = pd.read_csv(f)
+    if df.isnull().values.any():
+        file_na.append(f)
+print(file_na)
